@@ -1,18 +1,23 @@
 <template>
   <div class="home-wrapper">
     <div class="header-wrapper">
-      <Icon type="md-settings" />
+      <Avatar class="avatar"
+              src="https://apic.douyucdn.cn/upload/avatar_v3/201808/650168b922e4aae868b29fec672c4fa9_big.jpg"
+              size="large"
+              @click.prevent="goto99999" />
+      <p class="header-title">99999摸金助手</p>
+      <a class="header-extra" href="#" @click.prevent="gotoMyHome">by vivym</a>
     </div>
     <div class="row">
-      <div class="col_1 row-title">摸金</div>
-      <div class="col_3">
+      <div class="col_2 row-title">开启摸金</div>
+      <div class="col_5">
         <i-switch v-model="ghoulEnabled" size="large" />
         <Icon class="setting-btn" type="md-settings" size="22" @click="showSetting" />
       </div>
     </div>
     <div class="row">
-      <div class="col_1 row-title">音量</div>
-      <div class="col_3">
+      <div class="col_2 row-title">提示音量</div>
+      <div class="col_5">
         <Slider v-model="vol" :max="100"></Slider>
       </div>
     </div>
@@ -55,7 +60,7 @@
 
 <script>
 import { mapState } from 'vuex';
-import { Card, Switch, Icon, Slider, Modal, CellGroup, Cell } from 'iview';
+import { Avatar, Card, Switch, Icon, Slider, Modal, CellGroup, Cell } from 'iview';
 
 export default {
   components: {
@@ -66,6 +71,7 @@ export default {
     Modal,
     CellGroup,
     Cell,
+    Avatar,
   },
 
   data: () => ({
@@ -120,6 +126,9 @@ export default {
     goto99999 () {
       chrome.tabs.create({ 'url': 'https://www.douyu.com/99999', 'selected' : true });
     },
+    gotoMyHome () {
+      chrome.tabs.create({ 'url': 'https://yuba.douyu.com/user/main/194634764', 'selected' : true });
+    },
     getToday() {
       const obj = new Date();
       return `${obj.getFullYear()}${obj.getMonth()}${obj.getDate()}`;
@@ -138,11 +147,30 @@ export default {
     padding-left: 15px;
     padding-right: 15px;
   }
-  .avatar {
+  .header-wrapper {
+    padding: 15px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #f2f3f4;
     margin-bottom: 20px;
   }
+  .header-title {
+    font-size: 20px;
+    font-weight: bold;
+  }
+  .header-extra {
+    font-size: 16px;
+  }
+  .avatar:hover {
+    cursor: pointer;
+  }
   .setting-btn {
-    margin-left: 20px;
+    margin-left: 30px;
+  }
+  .setting-btn:hover {
+    cursor: pointer;
   }
   .row {
     display: flex;
@@ -157,6 +185,10 @@ export default {
   }
   .col_1 {
     flex: 1;
+    flex-direction: row;
+  }
+  .col_2 {
+    flex: 2;
     flex-direction: row;
   }
   .col_3 {
@@ -175,7 +207,8 @@ export default {
     margin-left: 20px;
   }
   .row-title {
-    font-size: 18px;
+    font-size: 16px;
+    font-weight: bold;
   }
   .pic-wrapper {
     position: relative;
