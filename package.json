@@ -1,0 +1,51 @@
+{
+  "name": "treasure-picker",
+  "version": "0.0.1",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "cd shells/chrome && webpack --mode development --watch --hide-modules",
+    "build": "cd shells/chrome && webpack --mode production --progress --hide-modules"
+  },
+  "author": "viv",
+  "license": "MIT",
+  "dependencies": {
+    "iview": "^3.1.4",
+    "moment": "^2.22.2",
+    "vue": "^2.5.17",
+    "vue-router": "^3.0.1",
+    "vuex": "^3.0.1",
+    "vuex-persist": "^2.0.0"
+  },
+  "devDependencies": {
+    "autoprefixer-loader": "^3.2.0",
+    "babel-plugin-import": "^1.11.0",
+    "buble": "^0.19.6",
+    "buble-loader": "^0.5.1",
+    "cross-env": "^5.2.0",
+    "css-loader": "^1.0.1",
+    "extract-text-webpack-plugin": "^4.0.0-beta.0",
+    "file-loader": "^2.0.0",
+    "friendly-errors-webpack-plugin": "^1.7.0",
+    "html-loader": "^0.5.5",
+    "html-webpack-plugin": "^3.2.0",
+    "inquirer": "^6.2.0",
+    "iview-loader": "^1.2.2",
+    "less": "^3.8.1",
+    "less-loader": "^4.1.0",
+    "nightwatch": "^0.9.21",
+    "nightwatch-helpers": "^1.2.0",
+    "raw-loader": "^0.5.1",
+    "semver": "^5.6.0",
+    "style-loader": "^0.23.1",
+    "uglifyjs-webpack-plugin": "^2.0.1",
+    "url-loader": "^1.1.2",
+    "vue-loader": "^15.4.2",
+    "vue-style-loader": "^4.1.2",
+    "vue-template-compiler": "^2.5.17",
+    "webpack": "^4.25.1",
+    "webpack-cli": "^3.1.2",
+    "webpack-dev-server": "^3.1.10"
+  }
+}
