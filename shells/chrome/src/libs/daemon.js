@@ -13,6 +13,7 @@ class Daemon extends EventEmitter {
   }
 
   async start() {
+    const { setting } = this;
     if (this.state !== 'INIT') {
       return ;
     }
@@ -27,7 +28,9 @@ class Daemon extends EventEmitter {
         }
       } else if (this.state === 'FOUND') {
         const treasure = this.getCurTreasure();
-        const timeout = Math.max(((treasure.surplusTime - treasure.delayTime) * 1000 - Date.now() + 50), 0);
+        const { delayRange } = setting; 
+        const delay = Math.max(delayRange[1] - delayRange[0], 0) * Math.random() + delayRange[0];
+        const timeout = Math.max(((treasure.surplusTime - treasure.delayTime) * 1000 - Date.now() + (delay || 0) + 5), 0);
         await sleep(timeout);
         await this.drawTreasure(treasure);
       }

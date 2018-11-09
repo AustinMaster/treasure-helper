@@ -5,7 +5,7 @@ function checkLocalSettingStorage() {
     const setting = JSON.parse(window.localStorage.setting);
     return setting && setting.setting && setting.setting.hasOwnProperty('ghoulEnabled') &&
       setting.setting.hasOwnProperty('vol') && 
-      setting.setting.hasOwnProperty('blockLiveStream') ? window.localStorage.setting : false;
+      setting.setting.hasOwnProperty('blockLiveStream') && setting.setting.hasOwnProperty('delayRange') ? window.localStorage.setting : false;
   } else {
     return false;
   }
@@ -28,6 +28,7 @@ function initLocalStorage() {
       ghoulEnabled: true,
       vol: 60,
       blockLiveStream: false,
+      delayRange: [50, 800],
     },
   });
   window.localStorage.stat = checkLocalStatStorage() || JSON.stringify({

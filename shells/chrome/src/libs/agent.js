@@ -45,7 +45,7 @@ class Agent extends EventEmitter {
         this.state = 'VALIDATE';
       } else if (treasureDrawResult.data.hasOwnProperty('award_type')) {
         if (this.state !== 'RESULT') {
-          window.postMessage({ source: 'treasure-got-res', data: treasureDrawResult.data });
+          window.postMessage({ source: 'treasure-got-res', data: treasureDrawResult.data }, '*');
         }
         this.state = 'RESULT';
       }

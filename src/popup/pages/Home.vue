@@ -1,10 +1,11 @@
 <template>
   <div class="home-wrapper">
     <div class="header-wrapper">
-      <Avatar class="avatar"
-              src="https://apic.douyucdn.cn/upload/avatar_v3/201808/650168b922e4aae868b29fec672c4fa9_big.jpg"
-              size="large"
-              @click.prevent="goto99999" />
+      <div @click.prevent="goto99999">
+        <Avatar class="avatar"
+                src="https://apic.douyucdn.cn/upload/avatar_v3/201808/650168b922e4aae868b29fec672c4fa9_big.jpg"
+                size="large" />
+      </div>
       <p class="header-title">99999摸金助手</p>
       <a class="header-extra" href="#" @click.prevent="gotoMyHome">by vivym</a>
     </div>
@@ -50,8 +51,10 @@
         <Cell title="干掉播放器">
           <Switch v-model="blockLiveStream" slot="extra" />
         </Cell>
-        <Cell title="取消宝箱延迟">
-          <Switch v-model="boxDelay" slot="extra" />
+        <Cell class="slider-cell-wrapper" title="宝箱延迟">
+          <div class="slider-wrapper" slot="extra">
+            <Slider v-model="delayRange" :max="2000" :step="10" :tip-format="sliderFormat" range></Slider>
+          </div>
         </Cell>
       </CellGroup>
     </Modal>
@@ -79,7 +82,7 @@ export default {
     vol: 60,
     blockLiveStream: false,
     settingModalShow: false,
-    boxDelay: true,
+    delayRange: [50, 800],
   }),
 
   computed: {
@@ -110,6 +113,9 @@ export default {
     },
     blockLiveStream(value) {
       this.$store.commit('SET_BLOCK_LIVE_STREAM', value);
+    },
+    delayRange(value) {
+      this.$store.commit('SET_DELAY_RANGE', value);
     }
   },
 
@@ -117,6 +123,7 @@ export default {
     this.ghoulEnabled = this.$store.state.setting.ghoulEnabled;
     this.vol = this.$store.state.setting.vol;
     this.blockLiveStream = this.$store.state.setting.blockLiveStream;
+    this.delayRange = this.$store.state.setting.delayRange;
 
     const today = this.getToday();
     this.$store.commit('SET_DAY', today);
@@ -135,7 +142,10 @@ export default {
     },
     showSetting() {
       this.settingModalShow = true;
-    }
+    },
+    sliderFormat(value) {
+      return `${value}毫秒`;
+    },
   }
 }
 </script>
@@ -171,6 +181,13 @@ export default {
   }
   .setting-btn:hover {
     cursor: pointer;
+  }
+  .slider-cell-wrapper {
+    overflow: visible;
+  }
+  .slider-wrapper {
+    width: 150px;
+    overflow: visible;
   }
   .row {
     display: flex;

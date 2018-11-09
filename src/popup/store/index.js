@@ -10,7 +10,8 @@ const vuexLocalSetting = new VuexPersistence({
   modules: ['setting'],
   filter: mutation => (mutation.type === 'SET_GHOUL_ENABLED' ||
                        mutation.type === 'SET_VOL' ||
-                       mutation.type === 'SET_BLOCK_LIVE_STREAM'),
+                       mutation.type === 'SET_BLOCK_LIVE_STREAM' ||
+                       mutation.type === 'SET_DELAY_RANGE'),
 });
 
 const vuexLocalStat = new VuexPersistence({
@@ -27,6 +28,7 @@ const settingStore = {
     ghoulEnabled: true,
     vol: 60,
     blockLiveStream: false,
+    delayRange: [50, 800],
   },
 
   mutations: {
@@ -39,6 +41,9 @@ const settingStore = {
     SET_BLOCK_LIVE_STREAM(state, value) {
       state.blockLiveStream = value;
     },
+    SET_DELAY_RANGE(state, value) {
+      state.delayRange = value;
+    }
   },
 };
 
