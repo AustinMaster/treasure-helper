@@ -85,7 +85,7 @@ window.addEventListener('message', evt => {
   if (evt.source === window && evt.data && evt.data.source === 'setting') {
     function checkSetup() {
       if (window.setup) {
-        window.setup(window.__REACT_DEVTOOLS_GLOBAL_HOOK__, evt.data.data);
+        window.setup(window.__REACT_DEVTOOLS_GLOBAL_HOOK__, evt.data.data, '${chrome.extension.getURL('assets/test.js')}');
       } else {
         setTimeout(checkSetup, 1000);
       }
