@@ -29,6 +29,7 @@ const settingStore = {
     vol: 60,
     blockLiveStream: false,
     delayRange: [50, 800],
+    autoClose: false,
   },
 
   mutations: {
@@ -43,7 +44,10 @@ const settingStore = {
     },
     SET_DELAY_RANGE(state, value) {
       state.delayRange = value;
-    }
+    },
+    SET_AUTO_CLOSE(state, value) {
+      state.autoClose = value;
+    },
   },
 };
 

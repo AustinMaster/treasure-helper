@@ -16,6 +16,7 @@ module.exports = {
     inject: './src/inject.js',
     backend: './src/backend.js',
     background: './src/background.js',
+    xiaohulu: './src/xiaohulu.js',
   },
   output: {
     path: path.join(__dirname, 'build'),

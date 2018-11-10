@@ -56,6 +56,9 @@
             <Slider v-model="delayRange" :max="2000" :step="10" :tip-format="sliderFormat" range></Slider>
           </div>
         </Cell>
+        <Cell title="摸完自动关闭网页">
+          <Switch v-model="autoClose" slot="extra" />
+        </Cell>
       </CellGroup>
     </Modal>
   </div>
@@ -83,6 +86,7 @@ export default {
     blockLiveStream: false,
     settingModalShow: false,
     delayRange: [50, 800],
+    autoClose: false,
   }),
 
   computed: {
@@ -116,6 +120,9 @@ export default {
     },
     delayRange(value) {
       this.$store.commit('SET_DELAY_RANGE', value);
+    },
+    autoClose(value) {
+      this.$store.commit('SET_AUTO_CLOSE', value);
     }
   },
 
@@ -124,6 +131,7 @@ export default {
     this.vol = this.$store.state.setting.vol;
     this.blockLiveStream = this.$store.state.setting.blockLiveStream;
     this.delayRange = this.$store.state.setting.delayRange;
+    this.autoClose = this.$store.state.setting.autoClose;
 
     const today = this.getToday();
     this.$store.commit('SET_DAY', today);

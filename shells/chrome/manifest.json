@@ -34,6 +34,11 @@
       "matches": ["https://www.douyu.com/*"],
       "js": ["build/inject.js"],
       "run_at": "document_start"
+    },
+    {
+      "matches": ["https://xian.xiaohulu.com/Box/index.html*"],
+      "js": ["build/xiaohulu.js"],
+      "run_at": "document_end"
     }
   ],
 

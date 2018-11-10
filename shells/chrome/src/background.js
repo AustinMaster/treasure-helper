@@ -1,3 +1,4 @@
+const AutoDriver = require('./libs/autoDriver');
 const util = require('./libs/util');
 
 function checkLocalSettingStorage() {
@@ -5,7 +6,9 @@ function checkLocalSettingStorage() {
     const setting = JSON.parse(window.localStorage.setting);
     return setting && setting.setting && setting.setting.hasOwnProperty('ghoulEnabled') &&
       setting.setting.hasOwnProperty('vol') && 
-      setting.setting.hasOwnProperty('blockLiveStream') && setting.setting.hasOwnProperty('delayRange') ? window.localStorage.setting : false;
+      setting.setting.hasOwnProperty('blockLiveStream') && 
+      setting.setting.hasOwnProperty('delayRange') && setting.setting.hasOwnProperty('autoClose') &&
+      setting.setting.hasOwnProperty('autoDrive') ? window.localStorage.setting : false;
   } else {
     return false;
   }
@@ -29,6 +32,8 @@ function initLocalStorage() {
       vol: 60,
       blockLiveStream: false,
       delayRange: [50, 800],
+      autoClose: false,
+      autoDrive: false,
     },
   });
   window.localStorage.stat = checkLocalStatStorage() || JSON.stringify({
@@ -44,6 +49,9 @@ function initLocalStorage() {
 }
 initLocalStorage();
 
+const { setting } = JSON.parse(window.localStorage.setting);
+const autoDriver = new AutoDriver();
+
 chrome.webRequest.onBeforeRequest.addListener(details => {
   const { setting } = JSON.parse(window.localStorage.setting);
   const cancel = details.initiator === 'https://www.douyu.com' &&
@@ -54,9 +62,20 @@ chrome.webRequest.onBeforeRequest.addListener(details => {
   return { cancel };
 }, { urls: ["<all_urls>"] }, ['blocking']);
 
+// AdBlock
+chrome.webRequest.onBeforeRequest.addListener(function () {
+  return { cancel: true };
+}, {
+  urls: [
+    "*://pubads.g.doubleclick.net/*",
+    "*://staticlive.douyucdn.cn/common/simplayer/assets/gameAdversion.swf?*",
+    "*://staticlive.douyucdn.cn/common/simplayer/assets/videoAd.swf?*"
+  ],
+}, [ "blocking" ]);
+
 chrome.runtime.onConnect.addListener(port => {
+  const { setting } = window.localStorage;
   if (port.name === 'treasure') {
-    const { setting } = window.localStorage;
     if (setting) {
       port.postMessage({
         type: 'setting',
@@ -91,6 +110,18 @@ chrome.runtime.onConnect.addListener(port => {
           console.log('unknown award_type:', data);
         }
         window.localStorage.stat = JSON.stringify({ stat });
+      }
+    });
+  } else if (port.name === 'xiaohulu' && JSON.parse(setting).setting.autoDrive) {
+    port.postMessage({ type: 'enable' });
+
+    port.onMessage.addListener(msg => {
+      console.log('msg:', msg);
+      const { type, data } = msg;
+      const { setting } = JSON.parse(window.localStorage.setting) || {};
+      if (type === 'update_rooms') {
+        console.log('rooms', data);
+        setting.autoDrive && autoDriver.update(data)
       }
     });
   }

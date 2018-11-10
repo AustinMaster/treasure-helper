@@ -10,6 +10,7 @@ class Daemon extends EventEmitter {
     this.agent = agent;
     this.setting = setting;
     this.state = 'INIT';
+    this.cnt = 0;
   }
 
   async start() {
@@ -22,8 +23,13 @@ class Daemon extends EventEmitter {
       if (this.state === 'IDLE') {
         if(!window.PlayerAsideApp || !this.getCurTreasure() || this.getGeePanelsShow()) {
           // still IDLE
+          if (setting.autoClose && this.cnt > 0 && !this.getCurTreasure()) {
+            // no treasure anymore
+            window.close();
+          }
           await sleep(1000);
         } else {
+          ++this.cnt;
           this.state = 'FOUND';
         }
       } else if (this.state === 'FOUND') {
@@ -64,6 +70,7 @@ class Daemon extends EventEmitter {
         }
         if (treasureData.isGeePanelsShow) {
           this.emit('got');
+          await this.showGeeTestPanel();
           break;
         } else {
           await sleep(500);
@@ -71,6 +78,31 @@ class Daemon extends EventEmitter {
       }
     }
     this.state = 'IDLE';
+  }
+
+  async showGeeTestPanel() {
+    let state = 'INIT';
+    while (true) {
+      if (state === 'INIT') {
+        const elems = document.getElementsByClassName('geetest_radar_tip');
+        if (elems && elems.length > 0) {
+          elems[0].click && elems[0].click();
+          state = 'GEE';
+        }
+      } else if (state === 'GEE') {
+        const elems = document.getElementsByClassName('geetest_popup_box');
+        if (elems && elems.length > 0) {
+          elems[0].style['width'] = '347px';
+          state = 'WAIT';
+        }
+      } else if(state === 'WAIT') {
+        const elems = document.getElementsByClassName('geetest_popup_box');
+        if (!elems || elems.length <= 0) {
+          break;
+        }
+      }
+      await sleep(333);
+    }
   }
 
   getTreasureData() {
