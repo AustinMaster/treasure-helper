@@ -38,7 +38,7 @@ function setup () {
       console.log('got');
       port && port.postMessage({ type: 'got' });
     } else if (evt.source === window && evt.data && evt.data.source === 'treasure_got_res') {
-      console.log('got_res', evt.data.data);
+      console.log('got_res');
       port && port.postMessage({ type: 'got_res', data: evt.data.data });
     }
   });

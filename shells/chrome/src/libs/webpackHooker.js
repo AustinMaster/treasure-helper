@@ -93,7 +93,7 @@ class WebpackHooker extends EventEmitter {
             if (self.state === 'WAITING' && parseInt(t.code, 10) !== 0) { // miss
               self.state = 'IDLE';
               self.handlePendingBoxes();
-            } else if (self.state === 'GEE_SHOW'  && is_error_message) { // geetest error
+            } else if (self.state === 'GEE_SHOW' && parseInt(t.code, 10) !== 0) { // geetest error
               self.state = 'IDLE';
               self.handlePendingBoxes();
             } else if (parseInt(t.code, 10) === 0) { // got-res
