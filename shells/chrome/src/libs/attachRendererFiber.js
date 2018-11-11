@@ -1,9 +1,10 @@
+/* eslint-disable */
 const semver = require('semver');
 
 const copyWithSet = require('./copyWithSet');
 const getDisplayName = require('./getDisplayName');
 
-function getInternalReactConstants(version) {
+function getInternalReactConstants (version) {
   let ReactTypeOfWork;
   let ReactSymbols;
   let ReactTypeOfSideEffect;
@@ -116,7 +117,7 @@ function getInternalReactConstants(version) {
   };
 }
 
-function attachRendererFiber(hook, rid, renderer) {
+function attachRendererFiber (hook, rid, renderer) {
   const { ReactTypeOfWork, ReactSymbols, ReactTypeOfSideEffect } = getInternalReactConstants(renderer.version);
   const { PerformedWork } = ReactTypeOfSideEffect;
   const {
@@ -151,7 +152,7 @@ function attachRendererFiber(hook, rid, renderer) {
 
   // TODO: we might want to change the data structure
   // once we no longer suppport Stack versions of `getData`.
-  function getDataFiber(fiber) {
+  function getDataFiber (fiber) {
     const type = fiber.type;
     const key = fiber.key;
     const ref = fiber.ref;
@@ -251,7 +252,7 @@ function attachRendererFiber(hook, rid, renderer) {
         if (typeof fiber.stateNode.setNativeProps === 'function') {
           // For editing styles in RN
           updater = {
-            setNativeProps(nativeProps) {
+            setNativeProps (nativeProps) {
               fiber.stateNode.setNativeProps(nativeProps);
             },
           };
@@ -378,7 +379,7 @@ function attachRendererFiber(hook, rid, renderer) {
     };
   }
 
-  function setInProps(fiber, path, value) {
+  function setInProps (fiber, path, value) {
     const inst = fiber.stateNode;
     fiber.pendingProps = copyWithSet(inst.props, path, value);
     if (fiber.alternate) {
@@ -390,17 +391,17 @@ function attachRendererFiber(hook, rid, renderer) {
     fiber.stateNode.forceUpdate();
   }
 
-  function setInState(inst, path, value) {
+  function setInState (inst, path, value) {
     setIn(inst.state, path, value);
     inst.forceUpdate();
   }
 
-  function setInContext(inst, path, value) {
+  function setInContext (inst, path, value) {
     setIn(inst.context, path, value);
     inst.forceUpdate();
   }
 
-  function setIn(obj, path, value) {
+  function setIn (obj, path, value) {
     var last = path.pop();
     var parent = path.reduce((obj_, attr) => obj_ ? obj_[attr] : null, obj);
     if (parent) {
@@ -415,11 +416,11 @@ function attachRendererFiber(hook, rid, renderer) {
   // We use this set to remember first encountered fiber for
   // each conceptual instance.
   const opaqueNodes = new Set();
-  function getOpaqueNode(fiber) {
+  function getOpaqueNode (fiber) {
     if (opaqueNodes.has(fiber)) {
       return fiber;
     }
-    const {alternate} = fiber;
+    const { alternate } = fiber;
     if (alternate != null && opaqueNodes.has(alternate)) {
       return alternate;
     }
@@ -427,7 +428,7 @@ function attachRendererFiber(hook, rid, renderer) {
     return fiber;
   }
 
-  function hasDataChanged(prevFiber, nextFiber) {
+  function hasDataChanged (prevFiber, nextFiber) {
     switch (nextFiber.tag) {
       case ClassComponent:
       case FunctionalComponent:
@@ -449,7 +450,7 @@ function attachRendererFiber(hook, rid, renderer) {
     }
   }
 
-  function haveProfilerTimesChanged(prevFiber, nextFiber) {
+  function haveProfilerTimesChanged (prevFiber, nextFiber) {
     return (
       prevFiber.actualDuration !== undefined && // Short-circuit check for non-profiling builds
       (
@@ -462,7 +463,7 @@ function attachRendererFiber(hook, rid, renderer) {
 
   let pendingEvents = [];
 
-  function flushPendingEvents() {
+  function flushPendingEvents () {
     const events = pendingEvents;
     pendingEvents = [];
     for (let i = 0; i < events.length; i++) {
@@ -471,7 +472,7 @@ function attachRendererFiber(hook, rid, renderer) {
     }
   }
 
-  function enqueueMount(fiber) {
+  function enqueueMount (fiber) {
     pendingEvents.push({
       internalInstance: getOpaqueNode(fiber),
       data: getDataFiber(fiber),
@@ -489,7 +490,7 @@ function attachRendererFiber(hook, rid, renderer) {
     }
   }
 
-  function enqueueUpdateIfNecessary(fiber, hasChildOrderChanged) {
+  function enqueueUpdateIfNecessary (fiber, hasChildOrderChanged) {
     if (
       !hasChildOrderChanged &&
       !hasDataChanged(fiber.alternate, fiber)
@@ -516,7 +517,7 @@ function attachRendererFiber(hook, rid, renderer) {
     });
   }
 
-  function enqueueUnmount(fiber) {
+  function enqueueUnmount (fiber) {
     const isRoot = fiber.tag === HostRoot;
     const opaqueNode = getOpaqueNode(fiber);
     const event = {
@@ -536,7 +537,7 @@ function attachRendererFiber(hook, rid, renderer) {
     opaqueNodes.delete(opaqueNode);
   }
 
-  function markRootCommitted(fiber) {
+  function markRootCommitted (fiber) {
     pendingEvents.push({
       internalInstance: getOpaqueNode(fiber),
       data: getDataFiber(fiber),
@@ -545,7 +546,7 @@ function attachRendererFiber(hook, rid, renderer) {
     });
   }
 
-  function mountFiber(fiber) {
+  function mountFiber (fiber) {
     // Depth-first.
     // Logs mounting of children first, parents later.
     let node = fiber;
@@ -580,7 +581,7 @@ function attachRendererFiber(hook, rid, renderer) {
     }
   }
 
-  function updateFiber(nextFiber, prevFiber) {
+  function updateFiber (nextFiber, prevFiber) {
     let hasChildOrderChanged = false;
     if (nextFiber.child !== prevFiber.child) {
       // If the first child is different, we need to traverse them.
@@ -623,7 +624,7 @@ function attachRendererFiber(hook, rid, renderer) {
     enqueueUpdateIfNecessary(nextFiber, hasChildOrderChanged);
   }
 
-  function walkTree() {
+  function walkTree () {
     hook.getFiberRoots(rid).forEach(root => {
       // Hydrate all the roots for the first time.
       mountFiber(root.current);
@@ -632,11 +633,11 @@ function attachRendererFiber(hook, rid, renderer) {
     flushPendingEvents();
   }
 
-  function cleanup() {
+  function cleanup () {
     // We don't patch any methods so there is no cleanup.
   }
 
-  function handleCommitFiberUnmount(fiber) {
+  function handleCommitFiberUnmount (fiber) {
     // This is not recursive.
     // We can't traverse fibers after unmounting so instead
     // we rely on React telling us about each unmount.
@@ -644,7 +645,7 @@ function attachRendererFiber(hook, rid, renderer) {
     enqueueUnmount(fiber);
   }
 
-  function handleCommitFiberRoot(root) {
+  function handleCommitFiberRoot (root) {
     const current = root.current;
     const alternate = current.alternate;
 
@@ -673,7 +674,7 @@ function attachRendererFiber(hook, rid, renderer) {
 
   // The naming is confusing.
   // They deal with opaque nodes (fibers), not elements.
-  function getNativeFromReactElement(fiber) {
+  function getNativeFromReactElement (fiber) {
     try {
       const opaqueNode = fiber;
       const hostInstance = renderer.findHostInstanceByFiber(opaqueNode);
@@ -683,7 +684,7 @@ function attachRendererFiber(hook, rid, renderer) {
       return null;
     }
   }
-  function getReactElementFromNative(hostInstance) {
+  function getReactElementFromNative (hostInstance) {
     const fiber = renderer.findFiberByHostInstance(hostInstance);
     if (fiber != null) {
       // TODO: type fibers.

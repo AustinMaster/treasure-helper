@@ -2,12 +2,12 @@
  * NOTE: This file cannot `require` any other modules. We `.toString()` the
  *       function in some places and inject the source into the page.
  */
-function installGlobalHook(window) {
+function installGlobalHook (window) {
   if (window.__REACT_DEVTOOLS_GLOBAL_HOOK__) {
     return;
   }
 
-  function detectReactBuildType(renderer) {
+  function detectReactBuildType (renderer) {
     try {
       if (typeof renderer.version === 'string') {
         // React DOM Fiber (16+)
@@ -113,7 +113,7 @@ function installGlobalHook(window) {
     // Shared between Stack and Fiber:
     _renderers: {},
     helpers: {},
-    checkDCE: function(fn) {
+    checkDCE: function (fn) {
       // This runs for production versions of React.
       // Needs to be super safe.
       try {
@@ -128,7 +128,7 @@ function installGlobalHook(window) {
           // Bonus: throw an exception hoping that it gets picked up by
           // a reporting system. Not synchronously so that it doesn't break the
           // calling code.
-          setTimeout(function() {
+          setTimeout(function () {
             throw new Error(
               'React is running in production mode, but dead code ' +
                 'elimination has not been applied. Read how to correctly ' +
@@ -139,27 +139,25 @@ function installGlobalHook(window) {
         }
       } catch (err) { }
     },
-    inject: function(renderer) {
+    inject: function (renderer) {
       var id = Math.random().toString(16).slice(2);
       hook._renderers[id] = renderer;
-      var reactBuildType = hasDetectedBadDCE ?
-        'deadcode' :
-        detectReactBuildType(renderer);
+      var reactBuildType = hasDetectedBadDCE ? 'deadcode' : detectReactBuildType(renderer);
       hook.emit('renderer', { id, renderer, reactBuildType });
       return id;
     },
     _listeners: {},
-    sub: function(evt, fn) {
+    sub: function (evt, fn) {
       hook.on(evt, fn);
       return () => hook.off(evt, fn);
     },
-    on: function(evt, fn) {
+    on: function (evt, fn) {
       if (!hook._listeners[evt]) {
         hook._listeners[evt] = [];
       }
       hook._listeners[evt].push(fn);
     },
-    off: function(evt, fn) {
+    off: function (evt, fn) {
       if (!hook._listeners[evt]) {
         return;
       }
@@ -171,7 +169,7 @@ function installGlobalHook(window) {
         hook._listeners[evt] = null;
       }
     },
-    emit: function(evt, data) {
+    emit: function (evt, data) {
       if (hook._listeners[evt]) {
         hook._listeners[evt].map(fn => fn(data));
       }
@@ -179,20 +177,20 @@ function installGlobalHook(window) {
     // Fiber-only:
     supportsFiber: true,
     _fiberRoots: {},
-    getFiberRoots(rendererID) {
+    getFiberRoots (rendererID) {
       const roots = hook._fiberRoots;
       if (!roots[rendererID]) {
         roots[rendererID] = new Set();
       }
       return roots[rendererID];
     },
-    onCommitFiberUnmount: function(rendererID, fiber) {
+    onCommitFiberUnmount: function (rendererID, fiber) {
       // TODO: can we use hook for roots too?
       if (hook.helpers[rendererID]) {
         hook.helpers[rendererID].handleCommitFiberUnmount(fiber);
       }
     },
-    onCommitFiberRoot: function(rendererID, root) {
+    onCommitFiberRoot: function (rendererID, root) {
       const mountedRoots = hook.getFiberRoots(rendererID);
       const current = root.current;
       const isKnownRoot = mountedRoots.has(root);

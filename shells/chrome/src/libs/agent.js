@@ -1,7 +1,7 @@
 const { EventEmitter } = require('events');
 
 class Agent extends EventEmitter {
-  constructor(hook, setting) {
+  constructor (hook, setting) {
     super();
     this._hook = hook;
     this.setting = setting;
@@ -11,7 +11,7 @@ class Agent extends EventEmitter {
     this.state = 'INIT';
   }
 
-  onMounted(evt) {
+  onMounted (evt) {
     const { data, internalInstance } = evt;
     const { props } = data;
     if (props && props.className) {
@@ -32,13 +32,13 @@ class Agent extends EventEmitter {
     }
   }
 
-  onUnmounted(evt) {
+  onUnmounted (evt) {
   }
 
-  onUpdated(evt) {
+  onUpdated (evt) {
   }
 
-  storeHandler(store) {
+  storeHandler (store) {
     const { treasureDrawResult } = store.getState();
     if (treasureDrawResult && Object.keys(treasureDrawResult.data).length > 0) {
       if (treasureDrawResult.data.hasOwnProperty('geetest')) {
@@ -52,7 +52,7 @@ class Agent extends EventEmitter {
     }
   }
 
-  drawTreasure() {
+  drawTreasure () {
     this._fnMouseDown && this._fnMouseDown();
     this._fnMouseUp && this._fnMouseUp();
     this._fnClick && this._fnClick();

@@ -1,6 +1,6 @@
-function crawlRooms() {
+function crawlRooms () {
   const rooms = [];
-  document.querySelectorAll('a[rel=noreferrer]').forEach(elem =>{
+  document.querySelectorAll('a[rel=noreferrer]').forEach(elem => {
     const url = elem.getAttribute('href');
     if (url.startsWith('http://www.douyu.com') || url.startsWith('https://www.douyu.com')) {
       try {

@@ -1,4 +1,4 @@
-function copyWithSetImpl(obj, path, idx, value) {
+function copyWithSetImpl (obj, path, idx, value) {
   if (idx >= path.length) {
     return value;
   }
@@ -9,7 +9,7 @@ function copyWithSetImpl(obj, path, idx, value) {
   return updated;
 }
 
-function copyWithSet(obj, path, value) {
+function copyWithSet (obj, path, value) {
   return copyWithSetImpl(obj, path, 0, value);
 }
 

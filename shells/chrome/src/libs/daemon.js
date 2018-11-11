@@ -1,11 +1,11 @@
 const { EventEmitter } = require('events');
 
-async function sleep(timeout) {
+async function sleep (timeout) {
   return new Promise(resolve => setTimeout(() => resolve(), timeout));
 }
 
 class Daemon extends EventEmitter {
-  constructor(agent, setting) {
+  constructor (agent, setting) {
     super();
     this.agent = agent;
     this.setting = setting;
@@ -13,15 +13,15 @@ class Daemon extends EventEmitter {
     this.cnt = 0;
   }
 
-  async start() {
+  async start () {
     const { setting } = this;
     if (this.state !== 'INIT') {
-      return ;
+      return;
     }
     this.state = 'IDLE';
     while (true) {
       if (this.state === 'IDLE') {
-        if(!window.PlayerAsideApp || !this.getCurTreasure() || this.getGeePanelsShow()) {
+        if (!window.PlayerAsideApp || !this.getCurTreasure() || this.getGeePanelsShow()) {
           // still IDLE
           if (setting.autoClose && this.cnt > 0 && !this.getCurTreasure()) {
             // no treasure anymore
@@ -34,7 +34,7 @@ class Daemon extends EventEmitter {
         }
       } else if (this.state === 'FOUND') {
         const treasure = this.getCurTreasure();
-        const { delayRange } = setting; 
+        const { delayRange } = setting;
         const delay = Math.max(delayRange[1] - delayRange[0], 0) * Math.random() + delayRange[0];
         const timeout = Math.max(((treasure.surplusTime - treasure.delayTime) * 1000 - Date.now() + (delay || 0) + 5), 0);
         await sleep(timeout);
@@ -43,14 +43,14 @@ class Daemon extends EventEmitter {
     }
   }
 
-  async drawTreasure(treasure) {
+  async drawTreasure (treasure) {
     console.log('picking up');
     if (this.state !== 'FOUND') {
       return;
     }
     const treasureData = this.getTreasureData();
     const curTreasure = this.getCurTreasure();
-    while (treasureData && treasureData.isGeePanelsShow) {
+    while (treasureData.isGeePanelsShow) {
       await sleep(1000);
     }
     if (curTreasure && curTreasure.treasureId === treasure.treasureId && !treasureData.isGeePanelsShow) {
@@ -58,8 +58,8 @@ class Daemon extends EventEmitter {
         type: 'DRAW_TREASURE',
         payload: {
           data: curTreasure,
-          type: 'init'
-        }
+          type: 'init',
+        },
       });
 
       while (true) {
@@ -80,7 +80,7 @@ class Daemon extends EventEmitter {
     this.state = 'IDLE';
   }
 
-  async showGeeTestPanel() {
+  async showGeeTestPanel () {
     let state = 'INIT';
     while (true) {
       if (state === 'INIT') {
@@ -95,7 +95,7 @@ class Daemon extends EventEmitter {
           elems[0].style['width'] = '347px';
           state = 'WAIT';
         }
-      } else if(state === 'WAIT') {
+      } else if (state === 'WAIT') {
         const elems = document.getElementsByClassName('geetest_popup_box');
         if (!elems || elems.length <= 0) {
           break;
@@ -105,8 +105,8 @@ class Daemon extends EventEmitter {
     }
   }
 
-  getTreasureData() {
-    if (window.PlayerAsideApp && window.PlayerAsideApp.container && 
+  getTreasureData () {
+    if (window.PlayerAsideApp && window.PlayerAsideApp.container &&
         window.PlayerAsideApp.container.registry &&
         window.PlayerAsideApp.container.registry.store) {
       const { treasureData } = window.PlayerAsideApp.container.registry.store.getState();
@@ -115,12 +115,12 @@ class Daemon extends EventEmitter {
     return null;
   }
 
-  getCurTreasure() {
+  getCurTreasure () {
     const treasureData = this.getTreasureData();
     return treasureData && treasureData.data && treasureData.data.length > 0 && treasureData.data[0];
   }
 
-  getGeePanelsShow() {
+  getGeePanelsShow () {
     const treasureData = this.getTreasureData();
     return treasureData.isGeePanelsShow;
   }

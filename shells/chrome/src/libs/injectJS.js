@@ -1,4 +1,4 @@
-module.exports = function(scriptName, done) {
+module.exports = function (scriptName, done) {
   var src = `
   // the prototype stuff is in case document.createElement has been modified
   (function () {
@@ -10,7 +10,7 @@ module.exports = function(scriptName, done) {
   })()
   `;
 
-  chrome.devtools.inspectedWindow.eval(src, function(res, err) {
+  chrome.devtools.inspectedWindow.eval(src, function (res, err) {
     if (err) {
       console.log(err);
     }

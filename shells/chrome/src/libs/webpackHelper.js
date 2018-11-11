@@ -1,15 +1,19 @@
-function getAllModules() {
+async function sleep (timeout) {
+  return new Promise(resolve => setTimeout(() => resolve(), timeout));
+}
+
+async function getWebpackModules() {
+  while (!window.webpackJsonp) {  // dirty
+    await sleep(333);
+  }
   return new Promise((resolve) => {
-    const id = 'fakeModule_';
-    window.webpackJsonp(
-      [],
-      {
-        [id]: (module, exports, __webpack_require__) => {
-          resolve(__webpack_require__.c);
-        }
-      },
-      [id]
-    );
+    const id = 'fakeModule';
+    const fakeModule = {
+      [id]: (module, exports, __webpack_require__) => {
+        resolve(__webpack_require__.c);
+      }
+    }
+    window.webpackJsonp([], fakeModule, [id]);
   });
 }
 
@@ -49,6 +53,7 @@ function hookWalk(obj, path, hooks) {
     key.forEach(key => obj.prototype[key] = backup[key]);
   } else {
     const length = path.length;
+    const backup = obj[key];
     Object.defineProperty(obj, key, {
       get: () => {
         if (length > 0) {
@@ -64,6 +69,7 @@ function hookWalk(obj, path, hooks) {
         obj[`_${key}`] = value;
       },
     });
+    backup && (obj[key] = backup);
   }
 }
 
@@ -74,7 +80,6 @@ function hookImpl(modules, arg) {
     get: () => modules[`_${name}`],
     set: module => {
       const exports = module.exports;
-      console.log('module:', module);
       Object.defineProperty(module, 'exports', {
         get: () => module._exports,
         set: exports => {
@@ -89,7 +94,7 @@ function hookImpl(modules, arg) {
 }
 
 async function hook(args) {
-  const modules = await getAllModules();
+  const modules = await getWebpackModules();
   args.forEach(arg => {
     hookImpl(modules, arg);
   });

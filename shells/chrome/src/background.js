@@ -1,20 +1,21 @@
 const AutoDriver = require('./libs/autoDriver');
 const util = require('./libs/util');
 
-function checkLocalSettingStorage() {
+function checkLocalSettingStorage () {
   if (window.localStorage.setting) {
     const setting = JSON.parse(window.localStorage.setting);
     return setting && setting.setting && setting.setting.hasOwnProperty('ghoulEnabled') &&
-      setting.setting.hasOwnProperty('vol') && 
-      setting.setting.hasOwnProperty('blockLiveStream') && 
+      setting.setting.hasOwnProperty('vol') &&
+      setting.setting.hasOwnProperty('blockLiveStream') &&
       setting.setting.hasOwnProperty('delayRange') && setting.setting.hasOwnProperty('autoClose') &&
-      setting.setting.hasOwnProperty('autoDrive') ? window.localStorage.setting : false;
+      setting.setting.hasOwnProperty('autoDrive') && setting.setting.hasOwnProperty('minimalism') &&
+      setting.setting.hasOwnProperty('autoOpenBox') ? window.localStorage.setting : false;
   } else {
     return false;
   }
 }
 
-function checkLocalStatStorage() {
+function checkLocalStatStorage () {
   if (window.localStorage.stat) {
     const stat = JSON.parse(window.localStorage.stat);
     return stat && stat.stat && stat.stat.hasOwnProperty('box') && stat.stat.hasOwnProperty('zan') &&
@@ -25,7 +26,7 @@ function checkLocalStatStorage() {
   }
 }
 
-function initLocalStorage() {
+function initLocalStorage () {
   window.localStorage.setting = checkLocalSettingStorage() || JSON.stringify({
     setting: {
       ghoulEnabled: true,
@@ -34,6 +35,8 @@ function initLocalStorage() {
       delayRange: [50, 800],
       autoClose: false,
       autoDrive: false,
+      minimalism: false,
+      autoOpenBox: false,
     },
   });
   window.localStorage.stat = checkLocalStatStorage() || JSON.stringify({
@@ -49,29 +52,28 @@ function initLocalStorage() {
 }
 initLocalStorage();
 
-const { setting } = JSON.parse(window.localStorage.setting);
 const autoDriver = new AutoDriver();
 
 chrome.webRequest.onBeforeRequest.addListener(details => {
   const { setting } = JSON.parse(window.localStorage.setting);
   const cancel = details.initiator === 'https://www.douyu.com' &&
-                  (details.url.endsWith('.m4s') || 
-                  details.url.endsWith('.wsv?type=3') || 
+                  (details.url.endsWith('.m4s') ||
+                  details.url.endsWith('.wsv?type=3') ||
                   details.url.indexOf('.flv') !== -1) &&
                   setting.ghoulEnabled && setting.blockLiveStream;
   return { cancel };
-}, { urls: ["<all_urls>"] }, ['blocking']);
+}, { urls: ['<all_urls>'] }, ['blocking']);
 
 // AdBlock
 chrome.webRequest.onBeforeRequest.addListener(function () {
   return { cancel: true };
 }, {
   urls: [
-    "*://pubads.g.doubleclick.net/*",
-    "*://staticlive.douyucdn.cn/common/simplayer/assets/gameAdversion.swf?*",
-    "*://staticlive.douyucdn.cn/common/simplayer/assets/videoAd.swf?*"
+    '*://pubads.g.doubleclick.net/*',
+    '*://staticlive.douyucdn.cn/common/simplayer/assets/gameAdversion.swf?*',
+    '*://staticlive.douyucdn.cn/common/simplayer/assets/videoAd.swf?*',
   ],
-}, [ "blocking" ]);
+}, [ 'blocking' ]);
 
 chrome.runtime.onConnect.addListener(port => {
   const { setting } = window.localStorage;
@@ -87,12 +89,11 @@ chrome.runtime.onConnect.addListener(port => {
       const { type, data } = msg;
       if (type === 'got') {
         const { setting } = JSON.parse(window.localStorage.setting) || {};
-        
         util.playAudio(chrome.extension.getURL('assets/ding.wav'), setting.vol / 100);
-        
-      } else if (type === 'got-res') {
+      } else if (type === 'got_res') {
         const { stat } = JSON.parse(window.localStorage.stat) || {};
         ++stat.box;
+        /* eslint-disable */
         const { award_type, silver, prop_count, prop_id, prop_name } = data;
         if (award_type === '1') {
           stat.silver += parseInt(silver, 10);
@@ -109,6 +110,7 @@ chrome.runtime.onConnect.addListener(port => {
         } else {
           console.log('unknown award_type:', data);
         }
+        /* eslint-enable */
         window.localStorage.stat = JSON.stringify({ stat });
       }
     });
@@ -116,12 +118,11 @@ chrome.runtime.onConnect.addListener(port => {
     port.postMessage({ type: 'enable' });
 
     port.onMessage.addListener(msg => {
-      console.log('msg:', msg);
       const { type, data } = msg;
       const { setting } = JSON.parse(window.localStorage.setting) || {};
       if (type === 'update_rooms') {
         console.log('rooms', data);
-        setting.autoDrive && autoDriver.update(data)
+        setting.autoDrive && autoDriver.update(data);
       }
     });
   }

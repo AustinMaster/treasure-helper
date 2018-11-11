@@ -1,3 +1,9 @@
 import { initPopup } from 'src/popup';
 
-initPopup({});
+initPopup({
+  mixin: {
+    methods: {
+      createTab: chrome.tabs.create,
+    },
+  },
+});

@@ -1,14 +1,6 @@
 <template>
   <div class="home-wrapper">
-    <div class="header-wrapper">
-      <div @click.prevent="goto99999">
-        <Avatar class="avatar"
-                src="https://apic.douyucdn.cn/upload/avatar_v3/201808/650168b922e4aae868b29fec672c4fa9_big.jpg"
-                size="large" />
-      </div>
-      <p class="header-title">99999摸金助手</p>
-      <a class="header-extra" href="#" @click.prevent="gotoMyHome">by vivym</a>
-    </div>
+    <header-bar />
     <div class="row">
       <div class="col_2 row-title">开启摸金</div>
       <div class="col_5">
@@ -51,10 +43,16 @@
         <Cell title="干掉播放器">
           <Switch v-model="blockLiveStream" slot="extra" />
         </Cell>
+        <Cell title="极简模式">
+          <Switch v-model="minimalism" slot="extra" />
+        </Cell>
         <Cell class="slider-cell-wrapper" title="宝箱延迟">
           <div class="slider-wrapper" slot="extra">
             <Slider v-model="delayRange" :max="2000" :step="10" :tip-format="sliderFormat" range></Slider>
           </div>
+        </Cell>
+        <Cell title="自动开宝箱">
+          <Switch v-model="autoOpenBox" slot="extra" />
         </Cell>
         <Cell title="摸完自动关闭网页">
           <Switch v-model="autoClose" slot="extra" />
@@ -66,10 +64,12 @@
 
 <script>
 import { mapState } from 'vuex';
-import { Avatar, Card, Switch, Icon, Slider, Modal, CellGroup, Cell } from 'iview';
+import { Card, Switch, Icon, Slider, Modal, CellGroup, Cell } from 'iview';
+import HeaderBar from '../components/home/HeaderBar.vue';
 
 export default {
   components: {
+    HeaderBar,
     'i-switch': Switch,
     Icon,
     Slider,
@@ -77,7 +77,6 @@ export default {
     Modal,
     CellGroup,
     Cell,
-    Avatar,
   },
 
   data: () => ({
@@ -87,6 +86,8 @@ export default {
     settingModalShow: false,
     delayRange: [50, 800],
     autoClose: false,
+    minimalism: false,
+    autoOpenBox: false,
   }),
 
   computed: {
@@ -109,20 +110,26 @@ export default {
   },
 
   watch: {
-    ghoulEnabled(value) {
+    ghoulEnabled (value) {
       this.$store.commit('SET_GHOUL_ENABLED', value);
     },
-    vol(value) {
+    vol (value) {
       this.$store.commit('SET_VOL', value);
     },
-    blockLiveStream(value) {
+    blockLiveStream (value) {
       this.$store.commit('SET_BLOCK_LIVE_STREAM', value);
     },
-    delayRange(value) {
+    delayRange (value) {
       this.$store.commit('SET_DELAY_RANGE', value);
     },
-    autoClose(value) {
+    autoClose (value) {
       this.$store.commit('SET_AUTO_CLOSE', value);
+    },
+    minimalism (value) {
+      this.$store.commit('SET_MINIMALISM', value);
+    },
+    autoOpenBox (value) {
+      this.$store.commit('SET_AUTO_OPEN_BOX', value);
     }
   },
 
@@ -132,26 +139,22 @@ export default {
     this.blockLiveStream = this.$store.state.setting.blockLiveStream;
     this.delayRange = this.$store.state.setting.delayRange;
     this.autoClose = this.$store.state.setting.autoClose;
+    this.minimalism = this.$store.state.setting.minimalism;
+    this.autoOpenBox = this.$store.state.setting.autoOpenBox;
 
     const today = this.getToday();
     this.$store.commit('SET_DAY', today);
   },
 
   methods: {
-    goto99999 () {
-      chrome.tabs.create({ 'url': 'https://www.douyu.com/99999', 'selected' : true });
-    },
-    gotoMyHome () {
-      chrome.tabs.create({ 'url': 'https://yuba.douyu.com/user/main/194634764', 'selected' : true });
-    },
-    getToday() {
+    getToday () {
       const obj = new Date();
       return `${obj.getFullYear()}${obj.getMonth()}${obj.getDate()}`;
     },
-    showSetting() {
+    showSetting () {
       this.settingModalShow = true;
     },
-    sliderFormat(value) {
+    sliderFormat (value) {
       return `${value}毫秒`;
     },
   }
@@ -164,25 +167,6 @@ export default {
     flex-direction: column;
     padding-left: 15px;
     padding-right: 15px;
-  }
-  .header-wrapper {
-    padding: 15px;
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
-    border-bottom: 1px solid #f2f3f4;
-    margin-bottom: 20px;
-  }
-  .header-title {
-    font-size: 20px;
-    font-weight: bold;
-  }
-  .header-extra {
-    font-size: 16px;
-  }
-  .avatar:hover {
-    cursor: pointer;
   }
   .setting-btn {
     margin-left: 30px;

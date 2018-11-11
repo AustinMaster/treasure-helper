@@ -1,12 +1,11 @@
-const attachRenderer = require('./libs/attachRenderer');
-const Agent = require('./libs/agent');
-const Daemon = require('./libs/daemon');
+const WebpackHooker = require('./libs/webpackHooker');
+const installSharkLoaderHook = require('./libs/installSharkLoaderHook');
 
-async function sleep(timeout) {
+async function sleep (timeout) {
   return new Promise(resolve => setTimeout(() => resolve(), timeout));
 }
 
-async function setDocTitle() {
+async function setDocTitle () {
   if (!document.title_src) {
     document.title_src = document.title;
     document.title = '[新箱子验证] ' + document.title;
@@ -21,42 +20,23 @@ async function setDocTitle() {
   }
 }
 
-function setup(hook, setting) {
-  const { ghoulEnabled, vol, blockLiveStream } = setting;
-  if (!ghoulEnabled) {
-    return;
-  }
-
-  const agent = new Agent(hook, setting);
-  const daemon = new Daemon(agent, setting);
-
-  agent.on('treasure-mounted', () => daemon.start());
-  daemon.start();
-  daemon.on('got', () => {
+function setup (setting) {
+  console.log('setup backend');
+  installSharkLoaderHook({ setting });
+  const webpackHooker = new WebpackHooker({ setting });
+  webpackHooker.install();
+  webpackHooker.on('got', () => {
     setDocTitle();
-    window.postMessage({ source: 'treasure-got' }, '*');
+    window.postMessage({ source: 'treasure_got' }, '*');
   });
-
-  const subs = [
-    hook.sub('renderer-attached', ({ id, renderer, helpers }) => helpers.walkTree()),
-    hook.sub('mount', (evt) => agent.onMounted(evt)),
-    hook.sub('unmount', (evt) => agent.onUnmounted(evt)),
-    hook.sub('update', (evt) => agent.onUpdated(evt))
-  ];
-
-  for(const rid in hook._renderers) {
-    hook.helpers[rid] = attachRenderer(hook, rid, hook._renderers[rid]);
-    hook.emit('renderer-attached', {
-      id: rid,
-      renderer: hook._renderers[rid],
-      helpers: hook.helpers[rid]
-    });
-  }
-
-  hook.on('renderer', ({ id, renderer }) => {
-    hook.helpers[id] = attachRenderer(hook, id, renderer);
-    hook.emit('renderer-attached', { id, renderer, helpers: hook.helpers[id] });
+  webpackHooker.on('got_res', data => {
+    window.postMessage({ source: 'treasure_got_res', data }, '*');
   });
 }
 
-window.setup = setup;
+window.postMessage({ source: 'backend_installed' }, '*');
+window.addEventListener('message', (evt) => {
+  if (evt.source === window && evt.data && evt.data.source === 'setting') {
+    setup(evt.data.data);
+  }
+});

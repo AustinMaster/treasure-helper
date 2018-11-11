@@ -1,4 +1,4 @@
-function playAudio(src, vol) {
+function playAudio (src, vol) {
   if (vol > 0) {
     const audio = new Audio();
     audio.src = src;
@@ -9,4 +9,4 @@ function playAudio(src, vol) {
 
 module.exports = {
   playAudio,
-}
+};

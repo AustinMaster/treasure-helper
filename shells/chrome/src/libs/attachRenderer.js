@@ -1,3 +1,4 @@
+/* eslint-disable */
 const attachRendererFiber = require('./attachRendererFiber');
 
 /**

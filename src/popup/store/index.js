@@ -11,14 +11,17 @@ const vuexLocalSetting = new VuexPersistence({
   filter: mutation => (mutation.type === 'SET_GHOUL_ENABLED' ||
                        mutation.type === 'SET_VOL' ||
                        mutation.type === 'SET_BLOCK_LIVE_STREAM' ||
-                       mutation.type === 'SET_DELAY_RANGE'),
+                       mutation.type === 'SET_DELAY_RANGE' ||
+                       mutation.type === 'SET_AUTO_CLOSE' ||
+                       mutation.type === 'SET_MINIMALISM' ||
+                       mutation.type === 'SET_AUTO_OPEN_BOX'),
 });
 
 const vuexLocalStat = new VuexPersistence({
   key: 'stat',
   storage: window.localStorage,
   modules: ['stat'],
-  filter: mutation => (mutation.type === 'SET_ZAN' || mutation.type === 'SET_WEN' || 
+  filter: mutation => (mutation.type === 'SET_ZAN' || mutation.type === 'SET_WEN' ||
                        mutation.type === 'SET_SONG' || mutation.type === 'SET_SILVER' ||
                        mutation.type === 'SET_DAY' || mutation.type === 'SET_BOX'),
 });
@@ -30,23 +33,31 @@ const settingStore = {
     blockLiveStream: false,
     delayRange: [50, 800],
     autoClose: false,
+    minimalism: false,
+    autoOpenBox: false,
   },
 
   mutations: {
-    SET_GHOUL_ENABLED(state, value) {
+    SET_GHOUL_ENABLED (state, value) {
       state.ghoulEnabled = value;
     },
-    SET_VOL(state, value) {
+    SET_VOL (state, value) {
       state.vol = value;
     },
-    SET_BLOCK_LIVE_STREAM(state, value) {
+    SET_BLOCK_LIVE_STREAM (state, value) {
       state.blockLiveStream = value;
     },
-    SET_DELAY_RANGE(state, value) {
+    SET_DELAY_RANGE (state, value) {
       state.delayRange = value;
     },
-    SET_AUTO_CLOSE(state, value) {
+    SET_AUTO_CLOSE (state, value) {
       state.autoClose = value;
+    },
+    SET_MINIMALISM (state, value) {
+      state.minimalism = value;
+    },
+    SET_AUTO_OPEN_BOX (state, value) {
+      state.autoOpenBox = value;
     },
   },
 };
@@ -62,22 +73,22 @@ const statStore = {
   },
 
   mutations: {
-    SET_BOX(state, value) {
+    SET_BOX (state, value) {
       state.box = value;
     },
-    SET_ZAN(state, value) {
+    SET_ZAN (state, value) {
       state.zan = value;
     },
-    SET_WEN(state, value) {
+    SET_WEN (state, value) {
       state.wen = value;
     },
-    SET_SONG(state, value) {
+    SET_SONG (state, value) {
       state.song = value;
     },
-    SET_SILVER(state, value) {
+    SET_SILVER (state, value) {
       state.silver = value;
     },
-    SET_DAY(state, value) {
+    SET_DAY (state, value) {
       if (state.day !== value) {
         state.box = 0;
         state.zan = 0;

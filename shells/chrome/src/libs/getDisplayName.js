@@ -1,7 +1,7 @@
 const FB_MODULE_RE = /^(.*) \[from (.*)\]$/;
 const cachedDisplayNames = new WeakMap();
 
-function getDisplayName(type, fallbackName = 'Unknown') {
+function getDisplayName (type, fallbackName = 'Unknown') {
   const nameFromCache = cachedDisplayNames.get(type);
   if (nameFromCache != null) {
     return nameFromCache;
