@@ -32,6 +32,22 @@ function setup (setting) {
   webpackHooker.on('got_res', data => {
     window.postMessage({ source: 'treasure_got_res', data }, '*');
   });
+  webpackHooker.on('miss', () => {
+    if (setting.autoClose && webpackHooker.noTs) {
+      window.close();
+    }
+  });
+  webpackHooker.on('barrage', msg => {
+    // console.log(msg);
+  });
+
+  window.addEventListener('message', (evt) => {
+    if (evt.source === window && evt.data && evt.data.source === 'sync') {
+      if (setting.autoClose && webpackHooker.noTs) {
+        window.close();
+      }
+    }
+  });
 }
 
 window.postMessage({ source: 'backend_installed' }, '*');

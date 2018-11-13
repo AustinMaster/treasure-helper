@@ -14,7 +14,8 @@ const vuexLocalSetting = new VuexPersistence({
                        mutation.type === 'SET_DELAY_RANGE' ||
                        mutation.type === 'SET_AUTO_CLOSE' ||
                        mutation.type === 'SET_MINIMALISM' ||
-                       mutation.type === 'SET_AUTO_OPEN_BOX'),
+                       mutation.type === 'SET_AUTO_OPEN_BOX' ||
+                       mutation.type === 'SET_BLOCK_ENTER_EFFECT'),
 });
 
 const vuexLocalStat = new VuexPersistence({
@@ -34,7 +35,8 @@ const settingStore = {
     delayRange: [50, 800],
     autoClose: false,
     minimalism: false,
-    autoOpenBox: false,
+    autoOpenBox: true,
+    blockEnterEffect: false,
   },
 
   mutations: {
@@ -58,6 +60,9 @@ const settingStore = {
     },
     SET_AUTO_OPEN_BOX (state, value) {
       state.autoOpenBox = value;
+    },
+    SET_BLOCK_ENTER_EFFECT (state, value) {
+      state.blockEnterEffect = value;
     },
   },
 };

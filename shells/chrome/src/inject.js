@@ -30,6 +30,8 @@ function setup () {
         }
       }
       window.postMessage({ source: 'setting', data }, '*');
+    } else if (type === 'sync') {
+      window.postMessage({ source: 'sync' }, '*');
     }
   });
 

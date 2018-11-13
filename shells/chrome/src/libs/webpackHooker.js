@@ -12,6 +12,7 @@ class WebpackHooker extends EventEmitter {
     this.setting = setting;
     this.state = 'IDLE';
     this.pendingBox = new FastPriorityQueue((a, b) => a.surplusTime < b.surplusTime);
+    this.noTs = true;
   }
 
   handlePendingBoxes (boxes) {
@@ -22,6 +23,7 @@ class WebpackHooker extends EventEmitter {
     }
 
     if (!this.pendingBox.isEmpty() && this.state === 'IDLE') {
+      this.noTs = false;
       this.state = 'WAITING';
       const { delayRange } = this.setting;
       const delay = Math.max(delayRange[1] - delayRange[0], 0) * Math.random() + delayRange[0];
@@ -30,8 +32,7 @@ class WebpackHooker extends EventEmitter {
     }
 
     if (this.pendingBox.isEmpty() && this.state === 'IDLE') {
-      const { autoClose } = this.setting;
-      autoClose && window.close();
+      this.noTs = true;
     }
   }
 
@@ -70,6 +71,27 @@ class WebpackHooker extends EventEmitter {
     }
   }
 
+  handleBarrages (t, n) {
+    try {
+      t.forEach(msg => {
+        const { senderId, senderNick, userLevel, hasCard, fansMedal, barrageContent, uniqueIdentifier } = msg;
+        if (barrageContent) {
+          this.emit('barrage', {
+            senderId,
+            senderNick,
+            userLevel,
+            hasCard,
+            fansMedal,
+            barrageContent,
+            uniqueIdentifier,
+          });
+        }
+      });
+    } catch (e) {
+      console.log('err:', e);
+    }
+  }
+
   install () {
     const self = this;
     webpackHelper.hook([
@@ -79,27 +101,30 @@ class WebpackHooker extends EventEmitter {
         hooks: {
           mapping (fn, t, n) {
             const box = fn.call(this, t, n);
-            box.destroyTime -= box.delayTime;
-            box.surplusTime -= box.delayTime;
-            box.delayTime = 1;
+            if (self.setting.ghoulEnabled) {
+              box.destroyTime -= box.delayTime;
+              box.surplusTime -= box.delayTime;
+              box.delayTime = 1;
+            }
             return box;
           },
           dataMap (fn, t, n) { // RCV
             const boxes = fn.call(this, t, n);
-            self.handlePendingBoxes(boxes);
+            self.setting.ghoulEnabled && self.handlePendingBoxes(boxes);
             return boxes;
           },
           showDrawTips (fn, t) {
             if (self.state === 'WAITING' && parseInt(t.code, 10) !== 0) { // miss
               self.state = 'IDLE';
               self.handlePendingBoxes();
+              self.emit('miss');
             } else if (self.state === 'GEE_SHOW' && parseInt(t.code, 10) !== 0) { // geetest error
               self.state = 'IDLE';
               self.handlePendingBoxes();
             } else if (parseInt(t.code, 10) === 0) { // got-res
               self.state = 'IDLE';
-              self.emit('got_res', t);
               self.handlePendingBoxes();
+              self.emit('got_res', t);
             }
             return fn.call(this, t);
           },
@@ -124,6 +149,76 @@ class WebpackHooker extends EventEmitter {
               self.state = 'GEE_SHOW';
             }
             return fn.call(this, t);
+          },
+        },
+      },
+      {
+        name: 'b33f',
+        path: ['a', 'prototype', ['render']],
+        hooks: {
+          render (fn) {
+            if (self.setting.blockEnterEffect) {
+              this.state.isRender = false;
+            }
+            return fn.call(this);
+          },
+        },
+      },
+      {
+        name: '9ce9',
+        path: ['a', 'prototype', ['init']],
+        hooks: {
+          init (fn, t) {
+            try {
+              const elem = document.getElementsByClassName('AnchorLevelTip-tipBarNum')[0];
+              elem.innerHTML = t.$ROOM.levelInfo.experience;
+            } catch (e) {
+              console.log('err:', e);
+            }
+            return fn.call(this, t);
+          },
+        },
+      },
+      {
+        name: '7914',
+        path: ['a', 'create'],
+        hooks: {
+          create (fn, t) {
+            const obj = fn.call(this, t);
+            const oldPush = obj.push;
+            obj.push = (t, r) => {
+              self.handleBarrages(t, r);
+              oldPush.call(obj, t, r);
+            };
+            return obj;
+          },
+        },
+      },
+      {
+        name: '597a',
+        path: ['a', 'WrappedComponent', 'prototype', ['render']],
+        hooks: {
+          render (fn) {
+            try {
+              this.props.ownerFansRank > 0 && (this.props.ownerFansRank = -this.props.ownerFansRank);
+            } catch (e) {
+              console.log('err:', e);
+            }
+            return fn.call(this);
+          },
+        },
+      },
+      {
+        name: 'fd73',
+        path: ['a', 'WrappedComponent', 'prototype', ['render']],
+        hooks: {
+          render (fn) {
+            try {
+              // console.log('here', this);
+            } catch (e) {
+              console.log('err:', e);
+            }
+            return fn.call(this);
           },
         },
       },

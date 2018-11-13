@@ -14,7 +14,7 @@
         <Slider v-model="vol" :max="100"></Slider>
       </div>
     </div>
-    <div class="row">
+    <div class="row margin_top_10">
       <Card dis-hover>
         <p slot="title">{{statTitle}}</p>
         <p slot="extra">{{totalValue > 0 ? `总价值${totalValue}鱼丸` : ''}}</p>
@@ -38,7 +38,7 @@
         </div>
       </Card>
     </div>
-    <Modal footer-hide v-model="settingModalShow" title="摸金设置" :styles="{ top: '20px' }">
+    <Modal footer-hide v-model="settingModalShow" title="摸金设置" :styles="{ top: '0px' }">
       <CellGroup>
         <Cell title="干掉播放器">
           <Switch v-model="blockLiveStream" slot="extra" />
@@ -56,6 +56,9 @@
         </Cell>
         <Cell title="摸完自动关闭网页">
           <Switch v-model="autoClose" slot="extra" />
+        </Cell>
+        <Cell title="屏蔽贵族进场特效">
+          <Switch v-model="blockEnterEffect" slot="extra" />
         </Cell>
       </CellGroup>
     </Modal>
@@ -87,7 +90,8 @@ export default {
     delayRange: [50, 800],
     autoClose: false,
     minimalism: false,
-    autoOpenBox: false,
+    autoOpenBox: true,
+    blockEnterEffect: false,
   }),
 
   computed: {
@@ -130,7 +134,10 @@ export default {
     },
     autoOpenBox (value) {
       this.$store.commit('SET_AUTO_OPEN_BOX', value);
-    }
+    },
+    blockEnterEffect (value) {
+      this.$store.commit('SET_BLOCK_ENTER_EFFECT', value);
+    },
   },
 
   created() {
@@ -141,6 +148,7 @@ export default {
     this.autoClose = this.$store.state.setting.autoClose;
     this.minimalism = this.$store.state.setting.minimalism;
     this.autoOpenBox = this.$store.state.setting.autoOpenBox;
+    this.blockEnterEffect = this.$store.state.setting.blockEnterEffect;
 
     const today = this.getToday();
     this.$store.commit('SET_DAY', today);
@@ -214,6 +222,9 @@ export default {
   }
   .margin_left_20 {
     margin-left: 20px;
+  }
+  .margin_top_10 {
+    margin-top: 10px;
   }
   .row-title {
     font-size: 16px;

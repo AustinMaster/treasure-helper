@@ -78,17 +78,17 @@ function hookImpl(modules, arg) {
 
   Object.defineProperty(modules, name, {
     get: () => modules[`_${name}`],
-    set: module => {
-      const exports = module.exports;
-      Object.defineProperty(module, 'exports', {
-        get: () => module._exports,
+    set: module_ => {
+      const exports = module_.exports;
+      Object.defineProperty(module_, 'exports', {
+        get: () => module_._exports,
         set: exports => {
           hookWalk(exports, path, hooks);
-          module._exports = exports;
+          module_._exports = exports;
         }
       })
-      module.exports = exports;
-      modules[`_${name}`] = module;
+      module_.exports = exports;
+      modules[`_${name}`] = module_;
     }
   });
 }

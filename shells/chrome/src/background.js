@@ -9,7 +9,8 @@ function checkLocalSettingStorage () {
       setting.setting.hasOwnProperty('blockLiveStream') &&
       setting.setting.hasOwnProperty('delayRange') && setting.setting.hasOwnProperty('autoClose') &&
       setting.setting.hasOwnProperty('autoDrive') && setting.setting.hasOwnProperty('minimalism') &&
-      setting.setting.hasOwnProperty('autoOpenBox') ? window.localStorage.setting : false;
+      setting.setting.hasOwnProperty('autoOpenBox') &&
+      setting.setting.hasOwnProperty('blockEnterEffect') ? window.localStorage.setting : false;
   } else {
     return false;
   }
@@ -36,7 +37,8 @@ function initLocalStorage () {
       autoClose: false,
       autoDrive: false,
       minimalism: false,
-      autoOpenBox: false,
+      autoOpenBox: true,
+      blockEnterEffect: false,
     },
   });
   window.localStorage.stat = checkLocalStatStorage() || JSON.stringify({
@@ -112,6 +114,7 @@ chrome.runtime.onConnect.addListener(port => {
         }
         /* eslint-enable */
         window.localStorage.stat = JSON.stringify({ stat });
+        port.postMessage({ type: 'sync' });
       }
     });
   } else if (port.name === 'xiaohulu' && JSON.parse(setting).setting.autoDrive) {
@@ -121,7 +124,6 @@ chrome.runtime.onConnect.addListener(port => {
       const { type, data } = msg;
       const { setting } = JSON.parse(window.localStorage.setting) || {};
       if (type === 'update_rooms') {
-        console.log('rooms', data);
         setting.autoDrive && autoDriver.update(data);
       }
     });
