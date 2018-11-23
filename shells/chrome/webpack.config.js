@@ -1,14 +1,14 @@
 const path = require('path');
 const webpack = require('webpack');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
-const HtmlWebpackPlugin = require('html-webpack-plugin');
+// const HtmlWebpackPlugin = require('html-webpack-plugin');
 const VueLoaderPlugin = require('vue-loader/lib/plugin');
 const alias = require('../alias');
 
 const bubleOptions = {
   target: { chrome: 52, firefox: 48 },
   objectAssign: 'Object.assign',
-}
+};
 
 module.exports = {
   entry: {
@@ -47,7 +47,7 @@ module.exports = {
               loaders: {
                 sass: 'vue-style-loader!css-loader!sass-loader?indentedSyntax=1',
                 scss: 'vue-style-loader!css-loader!sass-loader',
-                less: 'vue-style-loader!css-loader!less-loader'
+                less: 'vue-style-loader!css-loader!less-loader',
               },
               preserveWhitespace: false,
               buble: bubleOptions,
@@ -57,17 +57,17 @@ module.exports = {
             loader: 'iview-loader',
             options: {
               prefix: false,
-            }
+            },
           },
         ],
       },
       {
         test: /\.css$/,
-        use: ['vue-style-loader', 'css-loader']
+        use: ['vue-style-loader', 'css-loader'],
       },
       {
         test: /\.less/,
-        use: ['vue-style-loader', 'css-loader', 'less-loader']
+        use: ['vue-style-loader', 'css-loader', 'less-loader'],
       },
       {
         test: /\.(gif|jpg|png|woff|svg|eot|ttf)\??.*$/,
@@ -81,11 +81,11 @@ module.exports = {
   plugins: [
     new ExtractTextPlugin({
       filename: '[name].css',
-      allChunks: true
+      allChunks: true,
     }),
     new VueLoaderPlugin(),
   ],
-}
+};
 
 if (process.env.NODE_ENV === 'production') {
   const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
@@ -94,12 +94,12 @@ if (process.env.NODE_ENV === 'production') {
     new webpack.DefinePlugin({
       'process.env': {
         NODE_ENV: '"production"',
-      }
+      },
     }),
     new UglifyJsPlugin({
       uglifyOptions: { mangle: true },
       cache: true,
       parallel: true,
     }),
-  ]
+  ];
 }

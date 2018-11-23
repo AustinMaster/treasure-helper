@@ -5,7 +5,7 @@
               src="https://apic.douyucdn.cn/upload/avatar_v3/201808/650168b922e4aae868b29fec672c4fa9_big.jpg"
               size="large" />
     </div>
-    <p class="header-title">99999摸金助手 0.2.1</p>
+    <p class="header-title">99999摸金助手 {{version}}</p>
     <a class="header-extra" href="#" @click.prevent="gotoMyHome">by vivym</a>
   </div>
 </template>
@@ -15,6 +15,9 @@ import { Avatar } from 'iview';
 
 export default {
   components: { Avatar },
+  data: () => ({
+    version: require('shellChrome/manifest').version,
+  }),
   methods: {
     goto99999 () {
       this.createTab({ 'url': 'https://www.douyu.com/99999', 'selected' : true });

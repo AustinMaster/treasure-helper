@@ -13,6 +13,7 @@ class WebpackHooker extends EventEmitter {
     this.state = 'IDLE';
     this.pendingBox = new FastPriorityQueue((a, b) => a.surplusTime < b.surplusTime);
     this.noTs = true;
+    this.muteService = null;
   }
 
   handlePendingBoxes (boxes) {
@@ -71,11 +72,29 @@ class WebpackHooker extends EventEmitter {
     }
   }
 
+  getMuteService () {
+    if (!this.muteService) {
+      this.muteService = window.webpackJsonp([], null, ['6cb3']).a.prototype.muteService;
+    }
+    return this.muteService;
+  }
+
   handleBarrages (t, n) {
     try {
       t.forEach(msg => {
         const { senderId, senderNick, userLevel, hasCard, fansMedal, barrageContent, uniqueIdentifier } = msg;
         if (barrageContent) {
+          /*
+          console.log(this.getMuteService().muteDYUser({
+            blacktype: 1,
+            limittime: "60",
+            oid: 194634764,
+            oreason: "",
+            otype: 1,
+            rid: 3010691,
+            uid: 242853718,
+          }));
+          */
           this.emit('barrage', {
             senderId,
             senderNick,
@@ -171,26 +190,12 @@ class WebpackHooker extends EventEmitter {
           init (fn, t) {
             try {
               const elem = document.getElementsByClassName('AnchorLevelTip-tipBarNum')[0];
-              elem.innerHTML = t.$ROOM.levelInfo.experience;
+              elem.appendChild(document.createTextNode(', '));
+              elem.appendChild(document.createTextNode(t.$ROOM.levelInfo.experience));
             } catch (e) {
               console.log('err:', e);
             }
             return fn.call(this, t);
-          },
-        },
-      },
-      {
-        name: '7914',
-        path: ['a', 'create'],
-        hooks: {
-          create (fn, t) {
-            const obj = fn.call(this, t);
-            const oldPush = obj.push;
-            obj.push = (t, r) => {
-              self.handleBarrages(t, r);
-              oldPush.call(obj, t, r);
-            };
-            return obj;
           },
         },
       },

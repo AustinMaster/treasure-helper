@@ -2,4 +2,5 @@ const path = require('path');
 
 module.exports = {
   src: path.resolve(__dirname, '../src'),
+  shellChrome: path.resolve(__dirname, './chrome'),
 };

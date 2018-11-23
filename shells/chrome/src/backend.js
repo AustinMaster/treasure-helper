@@ -33,7 +33,7 @@ function setup (setting) {
     window.postMessage({ source: 'treasure_got_res', data }, '*');
   });
   webpackHooker.on('miss', () => {
-    if (setting.autoClose && webpackHooker.noTs) {
+    if (setting.ghoulEnabled && setting.autoClose && webpackHooker.noTs) {
       window.close();
     }
   });
