@@ -37,7 +37,7 @@ export default {
     justify-content: space-between;
     align-items: center;
     border-bottom: 1px solid #f2f3f4;
-    margin-bottom: 20px;
+    margin-bottom: 5px;
   }
   .header-title {
     font-size: 20px;

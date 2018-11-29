@@ -29,7 +29,8 @@ class WebpackHooker extends EventEmitter {
       const { delayRange } = this.setting;
       const delay = Math.max(delayRange[1] - delayRange[0], 0) * Math.random() + delayRange[0];
       const box = this.pendingBox.poll();
-      setTimeout(() => this.handleTimeupBox(box), Math.max(box.surplusTime * 1000 - Date.now() + delay + 5, 0));
+      const surplusTime = box.treasureType >= 0 ? Math.max(box.surplusTime * 1000 - Date.now() + delay + 5, 0) : 1;
+      setTimeout(() => this.handleTimeupBox(box), surplusTime);
     }
 
     if (this.pendingBox.isEmpty() && this.state === 'IDLE') {
@@ -39,11 +40,15 @@ class WebpackHooker extends EventEmitter {
 
   handleTimeupBox (box) {
     if (this.state === 'WAITING') {
-      console.log('picking');
-      PlayerAsideApp.container.registry.store.dispatch({
-        type: 'DRAW_TREASURE',
-        payload: { data: box, type: 'init' },
-      });
+      if (box.treasureType >= 0) {
+        console.log('picking');
+        PlayerAsideApp.container.registry.store.dispatch({
+          type: 'DRAW_TREASURE',
+          payload: { data: box, type: 'init' },
+        });
+      } else {
+        console.log('pass');
+      }
     }
   }
 
@@ -125,6 +130,7 @@ class WebpackHooker extends EventEmitter {
               box.surplusTime -= box.delayTime;
               box.delayTime = 1;
             }
+            console.log('box:', box); // box.treasureType 100 airplane 102 rocket 103 super rocket
             return box;
           },
           dataMap (fn, t, n) { // RCV

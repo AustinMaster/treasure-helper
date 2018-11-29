@@ -1,43 +1,50 @@
 <template>
   <div class="home-wrapper">
     <header-bar />
-    <div class="row">
-      <div class="col_2 row-title">开启摸金</div>
-      <div class="col_5">
-        <i-switch v-model="ghoulEnabled" size="large" />
-        <Icon class="setting-btn" type="md-settings" size="22" @click="showSetting" />
-      </div>
-    </div>
-    <div class="row">
-      <div class="col_2 row-title">提示音量</div>
-      <div class="col_5">
-        <Slider v-model="vol" :max="100"></Slider>
-      </div>
-    </div>
-    <div class="row margin_top_10">
-      <Card dis-hover>
-        <p slot="title">{{statTitle}}</p>
-        <p slot="extra">{{totalValue > 0 ? `总价值${totalValue}鱼丸` : ''}}</p>
+    <tabs>
+      <tab-pane label="摸金">
         <div class="row">
-          <div class="pic-wrapper">
-            <img class="pic" src="https://gfs-op.douyucdn.cn/dygift/1606/ecb0d4c424ff0bafbf4ba52a3284268b.png" />
-            <div class="count">{{zan}}</div>
-          </div>
-          <div class="pic-wrapper margin_left_20">
-            <img class="pic" src="https://gfs-op.douyucdn.cn/dygift/1612/9e8e5a8a3c442933926d877d62b08b1b.png" />
-            <div class="count">{{wen}}</div>
-          </div>
-          <div class="pic-wrapper margin_left_20">
-            <img class="pic" src="https://gfs-op.douyucdn.cn/dygift/1704/2f2d56c74487baaffd52e5c21c62b65e.png" />
-            <div class="count">{{song}}</div>
-          </div>
-          <div class="pic-wrapper margin_left_20">
-            <div class="no-pic"><span>丸</span></div>
-            <div class="count">{{silver}}</div>
+          <div class="col_2 row-title">开启摸金</div>
+          <div class="col_5">
+            <i-switch v-model="ghoulEnabled" size="large" />
+            <Icon class="setting-btn" type="md-settings" size="22" @click="showSetting" />
           </div>
         </div>
-      </Card>
-    </div>
+        <div class="row">
+          <div class="col_2 row-title">提示音量</div>
+          <div class="col_5">
+            <Slider v-model="vol" :max="100"></Slider>
+          </div>
+        </div>
+        <div class="row margin_top_10">
+          <Card dis-hover>
+            <p slot="title">{{statTitle}}</p>
+            <p slot="extra">{{totalValue > 0 ? `总价值${totalValue}鱼丸` : ''}}</p>
+            <div class="row">
+              <div class="pic-wrapper">
+                <img class="pic" src="https://gfs-op.douyucdn.cn/dygift/1606/ecb0d4c424ff0bafbf4ba52a3284268b.png" />
+                <div class="count">{{zan}}</div>
+              </div>
+              <div class="pic-wrapper margin_left_20">
+                <img class="pic" src="https://gfs-op.douyucdn.cn/dygift/1612/9e8e5a8a3c442933926d877d62b08b1b.png" />
+                <div class="count">{{wen}}</div>
+              </div>
+              <div class="pic-wrapper margin_left_20">
+                <img class="pic" src="https://gfs-op.douyucdn.cn/dygift/1704/2f2d56c74487baaffd52e5c21c62b65e.png" />
+                <div class="count">{{song}}</div>
+              </div>
+              <div class="pic-wrapper margin_left_20">
+                <div class="no-pic"><span>丸</span></div>
+                <div class="count">{{silver}}</div>
+              </div>
+            </div>
+          </Card>
+        </div>
+      </tab-pane>
+      <tab-pane label="答题" >
+        1231231313123
+      </tab-pane>
+    </tabs>
     <Modal footer-hide v-model="settingModalShow" title="摸金设置" :styles="{ top: '0px' }">
       <CellGroup>
         <Cell title="干掉播放器">
@@ -67,7 +74,7 @@
 
 <script>
 import { mapState } from 'vuex';
-import { Card, Switch, Icon, Slider, Modal, CellGroup, Cell } from 'iview';
+import { Tabs, TabPane, Card, Switch, Icon, Slider, Modal, CellGroup, Cell } from 'iview';
 import HeaderBar from '../components/home/HeaderBar.vue';
 
 export default {
@@ -80,6 +87,8 @@ export default {
     Modal,
     CellGroup,
     Cell,
+    Tabs,
+    TabPane,
   },
 
   data: () => ({
@@ -265,5 +274,8 @@ export default {
     text-align: center;
     min-width: 14px;
     line-height: 12px;
+  }
+  .answer-cell-group {
+    width: 200px;
   }
 </style>
