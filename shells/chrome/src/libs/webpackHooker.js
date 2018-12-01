@@ -29,7 +29,8 @@ class WebpackHooker extends EventEmitter {
       const { delayRange } = this.setting;
       const delay = Math.max(delayRange[1] - delayRange[0], 0) * Math.random() + delayRange[0];
       const box = this.pendingBox.poll();
-      const surplusTime = box.treasureType >= 0 ? Math.max(box.surplusTime * 1000 - Date.now() + delay + 5, 0) : 1;
+      const limit = this.setting.rocketOnly ? 102 : 0;
+      const surplusTime = box.treasureType >= limit ? Math.max(box.surplusTime * 1000 - Date.now() + delay + 5, 0) : 1;
       setTimeout(() => this.handleTimeupBox(box), surplusTime);
     }
 
@@ -40,7 +41,8 @@ class WebpackHooker extends EventEmitter {
 
   handleTimeupBox (box) {
     if (this.state === 'WAITING') {
-      if (box.treasureType >= 0) {
+      const limit = this.setting.rocketOnly ? 102 : 0;
+      if (box.treasureType >= limit) {
         console.log('picking');
         PlayerAsideApp.container.registry.store.dispatch({
           type: 'DRAW_TREASURE',
@@ -48,6 +50,8 @@ class WebpackHooker extends EventEmitter {
         });
       } else {
         console.log('pass');
+        this.state = 'IDLE';
+        this.handlePendingBoxes();
       }
     }
   }
@@ -58,6 +62,7 @@ class WebpackHooker extends EventEmitter {
       if (state === 'INIT') {
         const elems = document.getElementsByClassName('geetest_radar_tip');
         if (elems && elems.length > 0) {
+          elems[0].onmouseenter && elems[0].onmouseenter();
           elems[0].click && elems[0].click();
           state = 'GEE';
         }
@@ -86,20 +91,12 @@ class WebpackHooker extends EventEmitter {
 
   handleBarrages (t, n) {
     try {
+      if (this.setting.blockEnterBarrage) {
+        t = t.filter(msg => msg.barrageName !== 'userEnter-barrage');
+      }
       t.forEach(msg => {
         const { senderId, senderNick, userLevel, hasCard, fansMedal, barrageContent, uniqueIdentifier } = msg;
         if (barrageContent) {
-          /*
-          console.log(this.getMuteService().muteDYUser({
-            blacktype: 1,
-            limittime: "60",
-            oid: 194634764,
-            oreason: "",
-            otype: 1,
-            rid: 3010691,
-            uid: 242853718,
-          }));
-          */
           this.emit('barrage', {
             senderId,
             senderNick,
@@ -114,6 +111,7 @@ class WebpackHooker extends EventEmitter {
     } catch (e) {
       console.log('err:', e);
     }
+    return t;
   }
 
   install () {
@@ -130,7 +128,7 @@ class WebpackHooker extends EventEmitter {
               box.surplusTime -= box.delayTime;
               box.delayTime = 1;
             }
-            console.log('box:', box); // box.treasureType 100 airplane 102 rocket 103 super rocket
+            // console.log('box:', box); // box.treasureType 100 airplane 102 rocket 103 super rocket
             return box;
           },
           dataMap (fn, t, n) { // RCV
@@ -146,7 +144,7 @@ class WebpackHooker extends EventEmitter {
             } else if (self.state === 'GEE_SHOW' && parseInt(t.code, 10) !== 0) { // geetest error
               self.state = 'IDLE';
               self.handlePendingBoxes();
-            } else if (parseInt(t.code, 10) === 0) { // got-res
+            } else if (parseInt(t.code, 10) === 0) { // got_res
               self.state = 'IDLE';
               self.handlePendingBoxes();
               self.emit('got_res', t);
@@ -163,6 +161,22 @@ class WebpackHooker extends EventEmitter {
       },
       {
         name: '9408',
+        path: ['a', 'WrappedComponent', 'prototype', ['componentWillReceiveProps']],
+        hooks: {
+          componentWillReceiveProps (fn, t) {
+            const { treasureDrawResult } = t;
+            if (self.state === 'WAITING' && treasureDrawResult && treasureDrawResult.data && treasureDrawResult.data.geetest) { // show gee panel
+              self.emit('got');
+              const { autoOpenBox } = self.setting;
+              autoOpenBox && self.showGeeTestPanel();
+              self.state = 'GEE_SHOW';
+            }
+            return fn.call(this, t);
+          },
+        },
+      },
+      {
+        name: '94084',
         path: ['a', 'WrappedComponent', 'prototype', ['componentWillReceiveProps']],
         hooks: {
           componentWillReceiveProps (fn, t) {
@@ -230,6 +244,21 @@ class WebpackHooker extends EventEmitter {
               console.log('err:', e);
             }
             return fn.call(this);
+          },
+        },
+      },
+      {
+        name: '7914',
+        path: ['a', 'create'],
+        hooks: {
+          create (fn, t) {
+            const obj = fn.call(this, t);
+            const oldPush = obj.push;
+            obj.push = (t, r) => {
+              t = self.handleBarrages(t, r);
+              oldPush.call(obj, t, r);
+            };
+            return obj;
           },
         },
       },

@@ -17,10 +17,10 @@
           </div>
         </div>
         <div class="row margin_top_10">
-          <Card dis-hover>
+          <Card dis-hover class="card">
             <p slot="title">{{statTitle}}</p>
             <p slot="extra">{{totalValue > 0 ? `总价值${totalValue}鱼丸` : ''}}</p>
-            <div class="row">
+            <div class="row-2">
               <div class="pic-wrapper">
                 <img class="pic" src="https://gfs-op.douyucdn.cn/dygift/1606/ecb0d4c424ff0bafbf4ba52a3284268b.png" />
                 <div class="count">{{zan}}</div>
@@ -42,10 +42,48 @@
         </div>
       </tab-pane>
       <tab-pane label="答题" >
-        1231231313123
+        <div class="row">
+          <div class="col_2 row-title">自动答题</div>
+          <div class="col_5">
+            <Switch v-model="autoAnswerEnabled" size="large" />
+          </div>
+        </div>
+        <div class="row">
+          <div class="col_2 row-title">模式</div>
+          <div class="col_5">
+            <Select v-model="autoAnswerMode">
+              <Option value="smart" label="智能答题" />
+              <Option value="bruteforce" label="暴力答题" />
+            </Select>
+          </div>
+        </div>
+        <!--
+        <Divider class="divider">高级设置</Divider>
+        <div class="row">
+          <div class="col_2 row-title">倒计时框</div>
+          <div class="col_5 flex_row">
+            <Input v-model="previewClassName" />
+            <Button type="primary" @click="onSavePreviewClassName">保存</Button> 
+          </div>
+        </div>
+        -->
+      </tab-pane>
+      <tab-pane label="其他">
+        <div class="row">
+          <div class="col_5 row-title">屏蔽进场欢迎弹幕</div>
+          <div class="col_5">
+            <Switch v-model="blockEnterBarrage" />
+          </div>
+        </div>
+        <div class="row">
+          <div class="col_5 row-title">屏蔽贵族进场特效</div>
+          <div class="col_5">
+            <Switch v-model="blockEnterEffect" />
+          </div>
+        </div>
       </tab-pane>
     </tabs>
-    <Modal footer-hide v-model="settingModalShow" title="摸金设置" :styles="{ top: '0px' }">
+    <Modal footer-hide v-model="settingModalShow" title="摸金设置" :styles="{ top: '5px' }">
       <CellGroup>
         <Cell title="干掉播放器">
           <Switch v-model="blockLiveStream" slot="extra" />
@@ -64,8 +102,8 @@
         <Cell title="摸完自动关闭网页">
           <Switch v-model="autoClose" slot="extra" />
         </Cell>
-        <Cell title="屏蔽贵族进场特效">
-          <Switch v-model="blockEnterEffect" slot="extra" />
+        <Cell title="只要火箭及以上">
+          <Switch v-model="rocketOnly" slot="extra" />
         </Cell>
       </CellGroup>
     </Modal>
@@ -74,7 +112,7 @@
 
 <script>
 import { mapState } from 'vuex';
-import { Tabs, TabPane, Card, Switch, Icon, Slider, Modal, CellGroup, Cell } from 'iview';
+import { Tabs, TabPane, Card, Switch, Icon, Slider, Modal, CellGroup, Cell, Select, Option, Input, Divider, Button } from 'iview';
 import HeaderBar from '../components/home/HeaderBar.vue';
 
 export default {
@@ -89,6 +127,11 @@ export default {
     Cell,
     Tabs,
     TabPane,
+    Select,
+    Option,
+    Input,
+    Divider,
+    Button,
   },
 
   data: () => ({
@@ -101,6 +144,11 @@ export default {
     minimalism: false,
     autoOpenBox: true,
     blockEnterEffect: false,
+    autoAnswerEnabled: false,
+    autoAnswerMode: 'smart',
+    blockEnterBarrage: false,
+    previewClassName: 'answerPreview-43abcd',
+    rocketOnly: false,
   }),
 
   computed: {
@@ -147,6 +195,18 @@ export default {
     blockEnterEffect (value) {
       this.$store.commit('SET_BLOCK_ENTER_EFFECT', value);
     },
+    autoAnswerEnabled (value) {
+      this.$store.commit('SET_AUTO_ANSWER_ENABLED', value);
+    },
+    autoAnswerMode (value) {
+      this.$store.commit('SET_AUTO_ANSWER_MODE', value);
+    },
+    blockEnterBarrage (value) {
+      this.$store.commit('SET_BLOCK_ENTER_BARRAGE', value);
+    },
+    rocketOnly (value) {
+      this.$store.commit('SET_ROCKET_ONLY', value);
+    },
   },
 
   created() {
@@ -158,6 +218,12 @@ export default {
     this.minimalism = this.$store.state.setting.minimalism;
     this.autoOpenBox = this.$store.state.setting.autoOpenBox;
     this.blockEnterEffect = this.$store.state.setting.blockEnterEffect;
+    this.autoAnswerEnabled = this.$store.state.setting.autoAnswerEnabled;
+    this.autoAnswerMode = this.$store.state.setting.autoAnswerMode;
+    this.blockEnterBarrage = this.$store.state.setting.blockEnterBarrage;
+    this.previewClassName = this.$store.state.setting.previewClassName;
+    this.rocketOnly = this.$store.state.setting.rocketOnly;
+    
 
     const today = this.getToday();
     this.$store.commit('SET_DAY', today);
@@ -174,6 +240,9 @@ export default {
     sliderFormat (value) {
       return `${value}毫秒`;
     },
+    onSavePreviewClassName () {
+      this.$store.commit('SET_PREVIEW_CLASS_NAME', value);
+    },
   }
 }
 </script>
@@ -184,6 +253,7 @@ export default {
     flex-direction: column;
     padding-left: 15px;
     padding-right: 15px;
+    width: 310px;
   }
   .setting-btn {
     margin-left: 30px;
@@ -205,6 +275,21 @@ export default {
     justify-content: center;
     margin-top: 5px;
     margin-bottom: 5px;
+  }
+  .row-2 {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    margin-top: 5px;
+    margin-bottom: 5px;
+    padding-left: 5px;
+    padding-right: 5px;
+    height: 30px;
+  }
+  .flex_row {
+    display: flex;
+    flex-direction: row;
   }
   .flex_end {
     justify-content: flex-end;
@@ -236,7 +321,7 @@ export default {
     margin-top: 10px;
   }
   .row-title {
-    font-size: 16px;
+    font-size: 14px;
     font-weight: bold;
   }
   .pic-wrapper {
@@ -277,5 +362,14 @@ export default {
   }
   .answer-cell-group {
     width: 200px;
+  }
+  .overflow_visible {
+    overflow: visible;
+  }
+  .card {
+    width: 280px;
+  }
+  .divider {
+    font-size: 10px;
   }
 </style>

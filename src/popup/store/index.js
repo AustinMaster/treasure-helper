@@ -15,7 +15,12 @@ const vuexLocalSetting = new VuexPersistence({
                        mutation.type === 'SET_AUTO_CLOSE' ||
                        mutation.type === 'SET_MINIMALISM' ||
                        mutation.type === 'SET_AUTO_OPEN_BOX' ||
-                       mutation.type === 'SET_BLOCK_ENTER_EFFECT'),
+                       mutation.type === 'SET_BLOCK_ENTER_EFFECT' ||
+                       mutation.type === 'SET_AUTO_ANSWER_ENABLED' ||
+                       mutation.type === 'SET_AUTO_ANSWER_MODE' ||
+                       mutation.type === 'SET_BLOCK_ENTER_BARRAGE' ||
+                       mutation.type === 'SET_PREVIEW_CLASS_NAME' ||
+                       mutation.type === 'SET_ROCKET_ONLY'),
 });
 
 const vuexLocalStat = new VuexPersistence({
@@ -37,6 +42,11 @@ const settingStore = {
     minimalism: false,
     autoOpenBox: true,
     blockEnterEffect: false,
+    autoAnswerEnabled: false,
+    autoAnswerMode: 'smart',
+    blockEnterBarrage: false,
+    previewClassName: 'answerPreview-43abcd',
+    rocketOnly: false,
   },
 
   mutations: {
@@ -63,6 +73,21 @@ const settingStore = {
     },
     SET_BLOCK_ENTER_EFFECT (state, value) {
       state.blockEnterEffect = value;
+    },
+    SET_AUTO_ANSWER_ENABLED (state, value) {
+      state.autoAnswerEnabled = value;
+    },
+    SET_AUTO_ANSWER_MODE (state, value) {
+      state.autoAnswerMode = value;
+    },
+    SET_BLOCK_ENTER_BARRAGE (state, value) {
+      state.blockEnterBarrage = value;
+    },
+    SET_PREVIEW_CLASS_NAME (state, value) {
+      state.previewClassName = value;
+    },
+    SET_ROCKET_ONLY (state, value) {
+      state.rocketOnly = value;
     },
   },
 };

@@ -1,5 +1,6 @@
 const WebpackHooker = require('./libs/webpackHooker');
 const installSharkLoaderHook = require('./libs/installSharkLoaderHook');
+const AutoAnswer = require('./libs/autoAnswer');
 
 async function sleep (timeout) {
   return new Promise(resolve => setTimeout(() => resolve(), timeout));
@@ -40,6 +41,8 @@ function setup (setting) {
   webpackHooker.on('barrage', msg => {
     // console.log(msg);
   });
+  const autoAnswer = new AutoAnswer({ setting });
+  autoAnswer.install();
 
   window.addEventListener('message', (evt) => {
     if (evt.source === window && evt.data && evt.data.source === 'sync') {

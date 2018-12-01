@@ -10,7 +10,12 @@ function checkLocalSettingStorage () {
       setting.setting.hasOwnProperty('delayRange') && setting.setting.hasOwnProperty('autoClose') &&
       setting.setting.hasOwnProperty('autoDrive') && setting.setting.hasOwnProperty('minimalism') &&
       setting.setting.hasOwnProperty('autoOpenBox') &&
-      setting.setting.hasOwnProperty('blockEnterEffect') ? window.localStorage.setting : false;
+      setting.setting.hasOwnProperty('blockEnterEffect') &&
+      setting.setting.hasOwnProperty('autoAnswerEnabled') &&
+      setting.setting.hasOwnProperty('autoAnswerMode') &&
+      setting.setting.hasOwnProperty('blockEnterBarrage') &&
+      setting.setting.hasOwnProperty('previewClassName') &&
+      setting.setting.hasOwnProperty('rocketOnly') ? window.localStorage.setting : false;
   } else {
     return false;
   }
@@ -39,6 +44,11 @@ function initLocalStorage () {
       minimalism: false,
       autoOpenBox: true,
       blockEnterEffect: false,
+      autoAnswerEnabled: false,
+      autoAnswerMode: 'smart',
+      blockEnterBarrage: false,
+      previewClassName: 'answerPreview-43abcd',
+      rocketOnly: false,
     },
   });
   window.localStorage.stat = checkLocalStatStorage() || JSON.stringify({
@@ -77,6 +87,20 @@ chrome.webRequest.onBeforeRequest.addListener(function () {
   ],
 }, [ 'blocking' ]);
 
+function getToday () {
+  const obj = new Date();
+  return `${obj.getFullYear()}${obj.getMonth()}${obj.getDate()}`;
+}
+
+function resetStat (stat, today) {
+  stat.day = today;
+  stat.box = 0;
+  stat.zan = 0;
+  stat.wen = 0;
+  stat.song = 0;
+  stat.silver = 0;
+}
+
 chrome.runtime.onConnect.addListener(port => {
   const { setting } = window.localStorage;
   if (port.name === 'treasure') {
@@ -94,6 +118,10 @@ chrome.runtime.onConnect.addListener(port => {
         util.playAudio(chrome.extension.getURL('assets/ding.wav'), setting.vol / 100);
       } else if (type === 'got_res') {
         const { stat } = JSON.parse(window.localStorage.stat) || {};
+        const today = getToday();
+        if (stat.day !== today) {
+          resetStat(stat, today);
+        }
         ++stat.box;
         /* eslint-disable */
         const { award_type, silver, prop_count, prop_id, prop_name } = data;
